@@ -1,0 +1,212 @@
+
+create table salary (
+stid int primary key auto_increment,
+bp float(10,2),
+allow float(8,2),
+deduc float(10,2),
+constraint f2 foreign key(stid) references staff(stid));
+
+create database ims;
+
+use ims;
+
+create table courses(cid int primary key auto_increment,cname varchar(20) not null,fee int not null, duration int not null);
+
+create table students(sid int primary key auto_increment,sname varchar(20) not null,mail varchar(30),add1 varchar(20),add2 varchar(20));
+
+alter table courses auto_increment=11;
+
+describe courses;
+
+describe students;
+
+create table staff(stid int primary key auto_increment, stname varchar(20) not null,mobile bigint not null,cno int,constraint f1 foreign key(cno) references courses(cid));
+
+create table enroll(sid int, cid int, doj date, constraint f3 foreign key(sid) references students(sid),constraint f4 foreign key(cid) references courses(cid),primary key(sid,cid));
+
+
+/**********************************
+altering a table and modifying and adding a column in a table..
+**************************************************/
+
+alter table staff add column email varchar(30) unique;
+alter table courses change duration dur int not null;
+alter table staff modify mobile bigint unique;
+alter table students change sid sid int;
+
+update employee set  sid =null where eid=103;
+
+/************************* 
+dropping a primary and foreign key references in a table
+
+************************/
+
+alter table mobile drop foreign key f5;
+alter table enroll drop foreign key f3;
+alter table enroll drop foreign key f4;
+alter table enroll drop primary key;
+
+/**************************************
+adding a primary key and foreign key  with alter command
+*********************************************/
+alter table mobile add constraint f5 foreign key(sid) references students(sid);
+
+alter table enroll add constraint f3 foreign key(sid) references students(sid);
+
+alter table enroll add constraint f4 foreign key(cid) references courses(cid);
+alter table enroll add primary key(sid,cid);
+
+/*****************************************
+inserting records to the tables
+********************************************/
+
+insert into courses(cname,fee,dur) values('c',3000,5),('php',10000,25),('c#',13000,45);
+
+
+/*****************************************
+deleting the records from the table 
+***************************************/
+select * from courses;
+insert into courses(cname,fee,dur) values('java',13000,45),('c',3000,5),('php',10000,25),('c#',13000,45);
+
+delete from courses where cname='java';
+
+truncate table courses;
+/*******************************************
+updating and modifying a record values
+**************************************************/
+update courses set cname='python' where cname='c';
+
+/************************************************************
+select sname,cname from students,courses,enroll where students.sid=enroll.sid and courses.cid=enroll.cid;
+
+insert into mobile values (2,122143122,1252123343);
+select * from mobile;
+select * from mobile,students where students.sname='anu'and students.sid=mobile.sid  ;
+
+select stid,bp+allow-deduc as netpay from salary;
+SELECT * FROM courses c;
+select * from courses where dur between 10 and 30;
+select * from courses where cname<>'java';
+select max(fee)from courses;
+select max(fee)from courses where fee<>(select max(fee) from courses);
+
+insert into courses(cname,fee,dur) values('hadoop',4560,32);
+select * from courses order by fee desc limit 1,1;
+select * from courses order by fee;
+
+select count(cid),cname from courses where fee>5000 group by fee;
+select count(cid),cname from courses group by fee having fee>5000 ;
+select cid,cname from courses group by fee;
+
+select count(sid),add1 from students group by add1;
+select * from students;
+
+select count(sid),add1 from students group by add1;
+select * from students;
+select * from enroll;
+select count(sid),cid from enroll group by cid;
+
+select sname,enroll.sid from students,enroll where enroll.sid=students.sid group by enroll.sid;
+
+select sname,sid from students where sid in (select sid from enroll);
+
+
+select sname from students where sid in (select sid from enroll where cid in(select cid from courses where cname='java'));
+
+select stname from staff where stid in(select stid from salary having max(bp+allow-deduc));
+
+
+/****************************************************************
+DCL commands 
+*******************************************/
+
+select stname from staff where stid in(select stid from salary where (bp+allow-deduc)in (select max(bp+allow-deduc) from salary));
+
+
+SELECT * FROM `enroll`;
+select sname from students where sid in(select sid from enroll group by sid having count(sid)>=2);
+
+select sname from students where sid in(select sid from enroll where sid in(select count(sid)as curr from enroll group by cid));
+select count(cid) as curr from enroll group by cid ;
+
+select * from students inner join enroll where students.sid=enroll.sid;
+select distinct(sname),students.sid from students inner join enroll where students.sid=enroll.sid;
+select * from students, enroll where students.sid=enroll.sid;
+
+select * from students natural join enroll;
+select * from students left outer join enroll on students.sid=enroll.sid;
+
+create table employee (eid int primary key,ename varchar(20),sid int, constraint f7 foreign key(sid) references employee(eid));
+desc employee;
+insert into employee (eid,ename)values(101,'aaa'),(102,'bbb'),(103,'ccc');
+SELECT * FROM `employee`;
+
+select e1.ename from employee e1 join employee e2 where e1.eid=e2.sid;
+
+select * from employee e join employee;
+SELECT * FROM `enroll`;
+SELECT * FROM `employee`;
+
+
+create user 'hemu'@'localhost' identified by 'hemu';
+create user 'pavan'@'localhost' identified by 'pavan';
+drop user 'pavan'@'localhost';
+
+select * from mysql.user;
+show grants for 'hemu'@'localhost';
+
+grant all on ims.* to 'hemu'@'localhost';
+
+revoke select on ims.courses from 'hemu'@'localhost';
+
+
+/********************************************************
+TCL transaction control
+*******************************************************/
+
+start transaction;
+
+select * from courses;
+
+
+delete from courses where cname='python';
+
+update courses set fee=13000 where cname='php';
+rollback;
+
+
+/*********************************************************************************************************************
+
+
+assignment
+
+********************************************************************************************/
+
+----------------------------------------------------------------------------------------------------
+select itemname,unitprice from item where itemname='ledtv';
+
+select count(orderno) from orders where orderdate between '2014-05-03' and '2014-05-05';
+
+select distinct count(customerid) from orders;
+
+select customername from customer where customerid in (select customerid from orders where orderno in (select orderno from orderdetails where itemno in(select itemcode from item where itemname='ac')));
+
+
+SELECT * FROM `customer`;
+
+update item set unitprice=36000 where itemname='ac';
+
+select * from item order by unitprice desc;
+
+
+
+select itemno,count(orderno) from orderdetails group by itemno;
+
+select itemname from item where itemcode not in (select itemno from orderdetails);
+
+create view view1 as(select itemcode,itemname from item);
+
+select itemno,count(orderno) from orderdetails group by itemno;
+
+select itemname from item i inner join orderdetails o on o.itemno=i.itemcode group by o.itemno order by sum(o.qty) desc limit 0,1;
